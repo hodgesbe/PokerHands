@@ -6,6 +6,7 @@
 //  Copyright (c) 2015 Brett Hodges. All rights reserved.
 //
 
+#include <fstream>
 #include <iostream>
 
 int main(int argc, const char * argv[]) {
