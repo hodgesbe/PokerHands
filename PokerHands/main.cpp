@@ -12,14 +12,11 @@
 
 using namespace std;
 
-char player1[5], player2[5];
-int ccount=0;
+string player1, player2;
 
 void dealHands(string line){
-    for (int i=0; i<line.length(); ++i) {
-        cout<<line.at(i)<<endl;
-    }
-    cout<<endl;
+    player1 = line.substr(0,14);
+    player2 = line.substr(15,14);
 }
 
 int main(int argc, const char * argv[]) {
@@ -39,6 +36,8 @@ int main(int argc, const char * argv[]) {
         count++;
         getline(infile, line);
         dealHands(line);
+        cout<<"Player 1's hand: "<<player1<<endl;
+        cout<<"Player 2's hand: "<<player2<<endl;
     }
     
     infile.close();
