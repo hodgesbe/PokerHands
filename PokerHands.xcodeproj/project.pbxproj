@@ -232,6 +232,7 @@
 				B4DB9A101A96801F00989E65 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
