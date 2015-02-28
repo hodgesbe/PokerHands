@@ -102,18 +102,20 @@ int PokerHands::highCard(string playerCards){
     return card;
 }
 
+//Need to fix returns true at 3 of a kind
 bool PokerHands::hasPair(string playerCards){
     
     bool isPair = false;
     int *p = parseCardVal(playerCards);
     
-    for (int i = 0; i<=handSize; i++) {
-        for (int j = 0; j<=handSize; j++) {
-            if ((p[i]==p[j]) && (i != j)) {
-                isPair = true;
+        for (int i = 0; i<=handSize; i++) {
+            for (int j = 0; j<=handSize; j++) {
+                if ((p[i]==p[j]) && (i != j)) {
+                    isPair = true;
+                }
             }
         }
-    }
+    
     return isPair;
 }
 
@@ -156,54 +158,94 @@ bool PokerHands::hasThree(string playerCards){
     return threeAlike;
 }
 
-//Need to finish hasStraight
 bool PokerHands::hasStraight(string playerCards){
     int *p = parseCardVal(playerCards);
     bool isStraight = true;
-    int checkSize = 4;
-   
+    int count = 0;
+    
+    while (isStraight && count<4) {
+        if (p[count]+1 == p[count+1]) {
+            count++;
+            hasStFlush(playerCards);
+        }else
+            isStraight = false;
+    }
 
 
     return isStraight;
 }
 
-//Need to finish hasFlush
 bool PokerHands::hasFlush(string playerCards){
 
     bool isFlush = true;
-    int count = 0;
+    int count = 1;
     
-    while (isFlush && count<5) {
-        
+    while (isFlush && count<12) {
+        if (playerCards.at(count) == playerCards.at(count+3)) {
+            count+=3;
+            hasStFlush(playerCards);
+        }else
+            isFlush = false;
     }
     
     return isFlush;
 }
 
-//Need to finish hasFullHouse
+//Should work once hasPair fixed
 bool PokerHands::hasFullHouse(string playerCards){
-    bool isFullHouse;
+    bool isFullHouse = false;
+    
+    if (hasThree(playerCards) && hasPair(playerCards)) {
+        isFullHouse = true;
+    }
     
     return isFullHouse;
 }
 
 //Need to finish hasFour
 bool PokerHands::hasFour(string playerCards){
-    bool isFour;
+    int *p = parseCardVal(playerCards);
+    bool isFour = false;
+    int count = 0;
+    
+    for (int i = 0; i<handSize; i++) {
+        for (int j = 0; j<handSize; j++) {
+            if ((i != j) && (p[i] == p[j])) {
+                count++;
+            }
+        }
+    }
+    
+    if (count == 4) {
+        isFour = true;
+    }
     
     return isFour;
 }
 
-//Need to finish hasStFlush
+// Program explodes for some reason
 bool PokerHands::hasStFlush(string playerCards){
-    bool isStFlush;
-    
+    bool isStFlush = false;
+
+    /*
+    if (hasStraight(playerCards) && hasFlush(playerCards)) {
+        isStFlush = true;
+    }
+    */
     return isStFlush;
 }
 
-//Need to finish hasRoyal
+
 bool PokerHands::hasRoyal(string playerCards){
-    bool isRoyal;
+    int *p = parseCardVal(playerCards);
+    bool isRoyal = false;
+    
+    if (hasFlush(playerCards) && (p[0] == 10)) {
+        if (hasStraight(playerCards)) {
+            isRoyal = true;
+        }
+        
+    }
     
     return isRoyal;
 }
@@ -236,9 +278,9 @@ int main(int argc, const char * argv[]) {
         cout<<"Deal #: "<<count<<" - Player 1's hand: "<<player1<<endl;
         cout<<"Deal #: "<<count<<" - Player 2's hand: "<<player2<<endl;
         cout<<endl;
-        cout<<"Player 1 has flush?: "<<play.hasFlush(player1)<<endl;
+        cout<<"Player 1 has Four?: "<<play.hasRoyal(player1)<<endl;
         cout<<endl;
-        cout<<"Player 2 has straight?: "<<play.hasStraight(player2)<<endl;
+        //cout<<"Player 1 has straight?: "<<play.hasStraight(player1)<<endl;
         cout<<endl;
         
 
