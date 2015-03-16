@@ -25,7 +25,7 @@ class PokerHands{
         string dealP2(string);
         int *parseCardVal(string);
         int highCard(string);
-        bool hasPair(string);
+        int hasPair(string);
         bool has2Pair(string);
         bool hasThree(string);
         bool hasStraight(string);
@@ -34,6 +34,7 @@ class PokerHands{
         bool hasFour(string);
         bool hasStFlush(string);
         bool hasRoyal(string);
+        int whoWon(string, string);
     
 };
 
@@ -103,20 +104,19 @@ int PokerHands::highCard(string playerCards){
 }
 
 //Need to fix returns true at 3 of a kind
-bool PokerHands::hasPair(string playerCards){
-    
-    bool isPair = false;
+int PokerHands::hasPair(string playerCards){
+    int pairVal = 0;
     int *p = parseCardVal(playerCards);
     
         for (int i = 0; i<=handSize; i++) {
             for (int j = 0; j<=handSize; j++) {
                 if ((p[i]==p[j]) && (i != j)) {
-                    isPair = true;
+                    pairVal = p[i];
                 }
             }
         }
     
-    return isPair;
+    return pairVal;
 }
 
 bool PokerHands::has2Pair(string playerCards){
@@ -160,32 +160,34 @@ bool PokerHands::hasThree(string playerCards){
 
 bool PokerHands::hasStraight(string playerCards){
     int *p = parseCardVal(playerCards);
-    bool isStraight = true;
+    bool isStraight = false;
     int count = 0;
     
-    while (isStraight && count<4) {
-        if (p[count]+1 == p[count+1]) {
+    for (int i = 0; i<4; i++) {
+        if (p[i]+1 == p[i+1]) {
             count++;
-            hasStFlush(playerCards);
-        }else
-            isStraight = false;
+        }
     }
-
+    
+    if (count == 4) {
+        isStraight = true;
+    }
 
     return isStraight;
 }
 
 bool PokerHands::hasFlush(string playerCards){
-
-    bool isFlush = true;
-    int count = 1;
+    bool isFlush = false;
+    int count = 0;
     
-    while (isFlush && count<12) {
-        if (playerCards.at(count) == playerCards.at(count+3)) {
-            count+=3;
-            hasStFlush(playerCards);
-        }else
-            isFlush = false;
+    for (int i = 1; i<12; i+=3) {
+        if (playerCards.at(i) == playerCards.at(i+3)) {
+            count++;
+        }
+    }
+    
+    if (count == 4) {
+        isFlush = true;
     }
     
     return isFlush;
@@ -202,36 +204,27 @@ bool PokerHands::hasFullHouse(string playerCards){
     return isFullHouse;
 }
 
-//Need to finish hasFour
 bool PokerHands::hasFour(string playerCards){
     int *p = parseCardVal(playerCards);
     bool isFour = false;
-    int count = 0;
     
-    for (int i = 0; i<handSize; i++) {
-        for (int j = 0; j<handSize; j++) {
-            if ((i != j) && (p[i] == p[j])) {
-                count++;
-            }
-        }
-    }
-    
-    if (count == 4) {
+    if ( (p[0] == p[1]) && (p[1] == p[2]) && (p[2] == p[3])) {
+        isFour = true;
+    }else if ((p[1] == p[2]) && (p[2] == p[3]) && (p[3] == p[4])){
         isFour = true;
     }
     
     return isFour;
 }
 
-// Program explodes for some reason
+
 bool PokerHands::hasStFlush(string playerCards){
     bool isStFlush = false;
-
-    /*
-    if (hasStraight(playerCards) && hasFlush(playerCards)) {
+    
+    if (hasFlush(playerCards) && hasStraight(playerCards)) {
         isStFlush = true;
     }
-    */
+    
     return isStFlush;
 }
 
@@ -250,6 +243,33 @@ bool PokerHands::hasRoyal(string playerCards){
     return isRoyal;
 }
 
+int PokerHands::whoWon(string player1Cards, string player2Cards){
+    int numOfWins=0;
+    
+    if (hasRoyal(player1Cards) && !hasRoyal(player2Cards)) {
+        numOfWins++;
+    }else if (hasStFlush(player1Cards) && !hasStFlush(player2Cards)){
+        numOfWins++;
+    }else if (hasFour(player1Cards) && !hasFour(player2Cards)){
+        numOfWins++;
+    }else if (hasFullHouse(player1Cards) && !hasFullHouse(player2Cards)){
+        numOfWins++;
+    }else if (hasFlush(player1Cards) && !hasFlush(player2Cards)){
+        numOfWins++;
+    }else if (hasStraight(player1Cards) && !hasStraight(player2Cards)){
+        numOfWins++;
+    }else if (hasThree(player1Cards) && !hasThree(player2Cards)){
+        numOfWins++;
+    }else if (has2Pair(player1Cards) && !has2Pair(player2Cards)){
+        numOfWins++;
+    }else if (hasPair(player1Cards) && !hasPair(player2Cards)){
+        numOfWins++;
+    }else if (highCard(player1Cards)>highCard(player2Cards)){
+        numOfWins++;
+    }
+    
+    return numOfWins;
+}
 
 
 
@@ -261,6 +281,7 @@ int main(int argc, const char * argv[]) {
     ifstream infile("test.txt");
     //ifstream infile("hands.txt");
     int count = 0;
+    int p1GamesWon = 0;
     
     if (!infile) {
         cerr <<"Error Opening File"<<endl;
@@ -275,18 +296,14 @@ int main(int argc, const char * argv[]) {
         getline(infile, line);
         player1 = play.dealP1(line);
         player2 = play.dealP2(line);
-        cout<<"Deal #: "<<count<<" - Player 1's hand: "<<player1<<endl;
-        cout<<"Deal #: "<<count<<" - Player 2's hand: "<<player2<<endl;
-        cout<<endl;
-        cout<<"Player 1 has Four?: "<<play.hasRoyal(player1)<<endl;
-        cout<<endl;
-        //cout<<"Player 1 has straight?: "<<play.hasStraight(player1)<<endl;
-        cout<<endl;
+        p1GamesWon+=play.whoWon(player1, player2);
+
         
 
 
     }
     
+    cout<<"Player 1 won "<<p1GamesWon<<" hands!"<<endl;
     infile.close();
     
     return 0;
